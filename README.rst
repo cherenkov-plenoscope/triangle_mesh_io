@@ -35,15 +35,7 @@ For each file-format, ``triangle_mesh_io`` provides five basic functions:
 
 - ``m = init()`` Initializes an empty python-dict to hold the meshes/triangles.
 
-- ``m = minimal()`` Initializes a cube (1,1,1) as a minimal example of a
-    populated dict.
-
-
-However, ``triangle_mesh_io`` does not convert between mesh-formats.
-The features of the formats are very different: ``obj >> off >> stl``.
-Becasue of this, the conversion between formats is highly dependend on the
-use and can not be generalized. Thus, the python-dicts for the individual
-formats are not the same. Each represents its file-format.
+- ``m = minimal()`` Initializes a cube (1,1,1) as a minimal example of a populated dict.
 
 
 *******
@@ -139,10 +131,16 @@ Example
        assert len(tmi.obj.diff(m, m_back)) == 0
 
 
-
 *******
 Formats
 *******
+
+``triangle_mesh_io`` does not convert between mesh-formats.
+The features of the formats are very different: ``obj >> off >> stl``.
+Thus the python-dicts for the individual
+formats are not the same. Each dict-format follows its corresponding
+file-format.
+
 
 +--------------------------+------------+------------+------------+
 |                          |  ``.obj``  |  ``.off``  |  ``.stl``  |
@@ -157,8 +155,8 @@ Formats
 
 Defining a mesh is about defining relations between triangles (a.k.a. faces).
 Unfortunately ``stl`` is just a list of coordinates of triangles.
-Thus in ``stl`` possible neighboring-relations between triangles must be
-discoverd in an additional search based on their spatial positions.
+Thus in ``stl``, possible neighboring-relations between triangles must be
+discoverd in an additional search based on the triangles positions.
 
 
 While ``stl`` has a surface-normal in its format, it is unfortunately
