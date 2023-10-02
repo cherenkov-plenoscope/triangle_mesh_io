@@ -34,5 +34,13 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Natural Language :: English",
+        "Topic :: File Formats",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Scientific/Engineering :: Visualization",
+        "Topic :: Scientific/Engineering :: Physics",
+        "Topic :: Games/Entertainment",
+        "Topic :: Multimedia :: Graphics",
+        "Topic :: Multimedia :: Graphics :: 3D Modeling",
+        "Topic :: Multimedia :: Graphics :: Editors",
     ],
 )
