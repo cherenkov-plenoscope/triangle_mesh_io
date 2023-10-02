@@ -4,45 +4,75 @@ import os
 import tempfile
 
 
-UTAH_TEAPOT_PATH = pkg_resources.resource_filename(
+STL_ASCII_PATH = pkg_resources.resource_filename(
+    package_or_requirement="triangle_mesh_io",
+    resource_name=os.path.join(
+        "tests", "resources", "gridfinity_cup_modules_x1-y1-z5.stl"
+    ),
+)
+
+
+STL_BINARY_PATH = pkg_resources.resource_filename(
     package_or_requirement="triangle_mesh_io",
     resource_name=os.path.join("tests", "resources", "utah_teapot.stl"),
 )
 
 
-def test_is_almost_equal():
-    with open(UTAH_TEAPOT_PATH, "rb") as f:
-        a = tmi.stl.loads(f.read(), mode="binary")
+def test_diff():
+    with open(STL_ASCII_PATH, "rt") as f:
+        a = tmi.stl.loads(f.read(), mode="ascii")
 
-    assert tmi.stl.is_almost_equal(a=a, b=a)
+    assert not tmi.stl.diff(a=a, b=a)
     b = a.copy()
     b["normal.x"][1337] += 2e-6
-    assert not tmi.stl.is_almost_equal(a=a, b=b, eps=1e-6)
-    assert tmi.stl.is_almost_equal(a=a, b=b, eps=1e-3)
+    assert tmi.stl.diff(a=a, b=b, eps=1e-6)
+    assert not tmi.stl.diff(a=a, b=b, eps=1e-3)
 
 
-def test_read_stl():
-    with open(UTAH_TEAPOT_PATH, "rb") as f:
-        s_orig = tmi.stl.loads(f.read(), mode="binary")
+def _test_stl(original_path, original_mode):
+    if original_mode == "binary":
+        ori_mode = "binary"
+        ori_fmode = "b"
+        alt_mode = "ascii"
+        alt_fmode = "t"
+    elif original_mode == "ascii":
+        ori_mode = "ascii"
+        ori_fmode = "t"
+        alt_mode = "binary"
+        alt_fmode = "b"
+    else:
+        raise KeyError("original_mode must be either 'binary' or  'ascii'.")
+
+    with open(original_path, "r" + ori_fmode) as f:
+        s_ori = tmi.stl.loads(f.read(), mode=ori_mode)
 
     with tempfile.TemporaryDirectory(prefix="triangle_mesh_io_") as tmpdir:
-        tmp_ascii_path = os.path.join(tmpdir, "pot.ascii.stl")
-        tmp_binary_path = os.path.join(tmpdir, "pot.binary.stl")
+        tmp_ori_path = os.path.join(tmpdir, "pot.original-format.stl")
+        tmp_alt_path = os.path.join(tmpdir, "pot.alternative-format.stl")
 
-        with open(tmp_ascii_path, "wt") as f:
-            f.write(tmi.stl.dumps(s_orig, mode="ascii"))
+        with open(tmp_ori_path, "w" + ori_fmode) as f:
+            f.write(tmi.stl.dumps(s_ori, mode=ori_mode))
 
-        with open(tmp_ascii_path, "rt") as f:
-            s_orig_to_ascii = tmi.stl.loads(f.read(), mode="ascii")
+        with open(tmp_ori_path, "r" + ori_fmode) as f:
+            s_ori_back = tmi.stl.loads(f.read(), mode=ori_mode)
 
-        assert tmi.stl.is_almost_equal(a=s_orig, b=s_orig_to_ascii, eps=1e-6)
+        diff = tmi.stl.diff(a=s_ori, b=s_ori_back, eps=1e-6)
+        if diff:
+            print(diff)
+        assert len(diff) == 0
 
-        with open(tmp_binary_path, "wb") as f:
-            f.write(tmi.stl.dumps(s_orig_to_ascii, mode="binary"))
+        with open(tmp_alt_path, "w" + alt_fmode) as f:
+            f.write(tmi.stl.dumps(s_ori_back, mode=alt_mode))
 
-        with open(tmp_binary_path, "rb") as f:
-            s_orig_to_ascii_to_binary = tmi.stl.loads(f.read(), mode="binary")
+        with open(tmp_alt_path, "r" + alt_fmode) as f:
+            s_alt_back = tmi.stl.loads(f.read(), mode=alt_mode)
 
-        assert tmi.stl.is_almost_equal(
-            a=s_orig, b=s_orig_to_ascii_to_binary, eps=1e-6
-        )
+        diff = tmi.stl.diff(a=s_ori, b=s_alt_back, eps=1e-6)
+        if diff:
+            print(diff)
+        assert len(diff) == 0
+
+
+def test_stl():
+    _test_stl(original_path=STL_ASCII_PATH, original_mode="ascii")
+    _test_stl(original_path=STL_BINARY_PATH, original_mode="binary")
