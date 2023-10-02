@@ -68,7 +68,8 @@ def dumps(obj):
         The object-wavefront to be serialized.
     """
 
-    # counting starts at one
+    IN_OBJ_INDEX_STARTS_WITH_1 = 1
+
     s = io.StringIO()
     s.write("# vertices\n")
     for v in obj["v"]:
@@ -83,12 +84,12 @@ def dumps(obj):
         for f in obj["mtl"][mtl]:
             s.write(
                 "f {:d}//{:d} {:d}//{:d} {:d}//{:d}\n".format(
-                    1 + f["v"][0],
-                    1 + f["vn"][0],
-                    1 + f["v"][1],
-                    1 + f["vn"][1],
-                    1 + f["v"][2],
-                    1 + f["vn"][2],
+                    IN_OBJ_INDEX_STARTS_WITH_1 + f["v"][0],
+                    IN_OBJ_INDEX_STARTS_WITH_1 + f["vn"][0],
+                    IN_OBJ_INDEX_STARTS_WITH_1 + f["v"][1],
+                    IN_OBJ_INDEX_STARTS_WITH_1 + f["vn"][1],
+                    IN_OBJ_INDEX_STARTS_WITH_1 + f["v"][2],
+                    IN_OBJ_INDEX_STARTS_WITH_1 + f["vn"][2],
                 )
             )
     s.seek(0)
@@ -105,7 +106,11 @@ def _vector_from_line(key, line):
 def _indices_from_slash_block(slash_block):
     tokens = str.split(slash_block, "/")
     assert len(tokens) == 3
-    return int(tokens[0]) - 1, int(tokens[2]) - 1
+    IN_OBJ_INDEX_STARTS_WITH_1 = 1
+    return (
+        int(tokens[0]) - IN_OBJ_INDEX_STARTS_WITH_1,
+        int(tokens[2]) - IN_OBJ_INDEX_STARTS_WITH_1,
+    )
 
 
 def _face_from_line(line):

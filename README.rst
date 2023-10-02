@@ -24,16 +24,19 @@ Installation
 Functions
 *********
 
-For each file-format, ``triangle_mesh_io`` provides four basic functions:
+For each file-format, ``triangle_mesh_io`` provides five basic functions:
 
 
--  ``init()`` Initializes an empty python-dict to hold the meshes/triangles.
+- ``m = loads(s)`` Loads the meshes/triangles from a string into a python-dict.
 
--  ``loads(s)`` Loads the meshes/triangles from a string into a python-dict.
+- ``s = dumps(m)`` Dumps the meshes/triangles from a python-dict into a string.
 
--  ``dumps(o)`` Dumps the meshes/triangles from a python-dict into a string.
+- ``l = diff(m1, m2)`` Lists differences ``l`` between two meshes ``m1``, and ``m2``.
 
--  ``diff(a, b)`` Lists differences between two meshes ``a``, and ``b``.
+- ``m = init()`` Initializes an empty python-dict to hold the meshes/triangles.
+
+- ``m = minimal()`` Initializes a cube (1,1,1) as a minimal example of a
+    populated dict.
 
 
 However, ``triangle_mesh_io`` does not convert between mesh-formats.
@@ -41,6 +44,100 @@ The features of the formats are very different: ``obj >> off >> stl``.
 Becasue of this, the conversion between formats is highly dependend on the
 use and can not be generalized. Thus, the python-dicts for the individual
 formats are not the same. Each represents its file-format.
+
+
+*******
+Example
+*******
+
+.. code-block:: python
+
+    import triangle_mesh_io as tmi
+
+    m = tmi.obj.minimal()
+    print(m)
+
+
+.. code-block::
+
+    {'v': [[1.0, 0.0, 0.0],
+      [1.0, 1.0, 0.0],
+      [0.0, 1.0, 0.0],
+      [0.0, 0.0, 0.0],
+      [1.0, 0.0, 1.0],
+      [1.0, 1.0, 1.0],
+      [0.0, 1.0, 1.0],
+      [0.0, 0.0, 1.0]],
+     'vn': [[1.0, 0.0, 0.0],
+      [0.0, 1.0, 0.0],
+      [0.0, 0.0, 1.0],
+      [-1.0, 0.0, 0.0],
+      [0.0, -1.0, 0.0],
+      [0.0, 0.0, -1.0]],
+     'mtl': {'pos-x': [{'v': [0, 1, 5], 'vn': [0, 0, 0]},
+       {'v': [5, 4, 0], 'vn': [0, 0, 0]}],
+      'pos-y': [{'v': [1, 2, 5], 'vn': [1, 1, 1]},
+       {'v': [5, 2, 6], 'vn': [1, 1, 1]}],
+      'pos-z': [{'v': [4, 5, 6], 'vn': [2, 2, 2]},
+       {'v': [6, 7, 4], 'vn': [2, 2, 2]}],
+      'neg-x': [{'v': [2, 6, 3], 'vn': [3, 3, 3]},
+       {'v': [6, 7, 3], 'vn': [3, 3, 3]}],
+      'neg-y': [{'v': [0, 3, 7], 'vn': [4, 4, 4]},
+       {'v': [7, 4, 0], 'vn': [4, 4, 4]}],
+      'neg-z': [{'v': [0, 1, 2], 'vn': [5, 5, 5]},
+       {'v': [2, 3, 0], 'vn': [5, 5, 5]}]}}
+
+
+.. code-block:: python
+
+       s = tmi.obj.dumps(m)
+       print(s)
+
+
+.. code-block::
+
+    # vertices
+    v 1.000000 0.000000 0.000000
+    v 1.000000 1.000000 0.000000
+    v 0.000000 1.000000 0.000000
+    v 0.000000 0.000000 0.000000
+    v 1.000000 0.000000 1.000000
+    v 1.000000 1.000000 1.000000
+    v 0.000000 1.000000 1.000000
+    v 0.000000 0.000000 1.000000
+    # vertex-normals
+    vn 1.000000 0.000000 0.000000
+    vn 0.000000 1.000000 0.000000
+    vn 0.000000 0.000000 1.000000
+    vn -1.000000 0.000000 0.000000
+    vn 0.000000 -1.000000 0.000000
+    vn 0.000000 0.000000 -1.000000
+    # faces
+    usemtl pos-x
+    f 1//1 2//1 6//1
+    f 6//1 5//1 1//1
+    usemtl pos-y
+    f 2//2 3//2 6//2
+    f 6//2 3//2 7//2
+    usemtl pos-z
+    f 5//3 6//3 7//3
+    f 7//3 8//3 5//3
+    usemtl neg-x
+    f 3//4 7//4 4//4
+    f 7//4 8//4 4//4
+    usemtl neg-y
+    f 1//5 4//5 8//5
+    f 8//5 5//5 1//5
+    usemtl neg-z
+    f 1//6 2//6 3//6
+    f 3//6 4//6 1//6
+
+
+.. code-block:: python
+
+       m_back = tmi.obj.loads(s)
+       assert len(tmi.obj.diff(m, m_back)) == 0
+
 
 
 *******
