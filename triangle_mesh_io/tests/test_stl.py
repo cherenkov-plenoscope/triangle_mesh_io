@@ -29,6 +29,25 @@ def test_diff():
     assert not tmi.stl.diff(a=a, b=b, eps=1e-3)
 
 
+def test_minimal():
+    with tempfile.TemporaryDirectory(prefix="triangle_mesh_io_") as tmp:
+        cube_path = os.path.join(tmp, "cube.stl")
+
+        cube = tmi.stl.minimal()
+
+        with open(cube_path, "wt") as f:
+            f.write(tmi.stl.dumps(cube, mode="ascii"))
+
+        with open(cube_path, "rt") as f:
+            cube_back = tmi.stl.loads(f.read(), mode="ascii")
+
+        diff = tmi.stl.diff(cube, cube_back)
+
+        if diff:
+            print(diff)
+        assert len(diff) == 0
+
+
 def _test_stl(original_path, original_mode):
     if original_mode == "binary":
         ori_mode = "binary"

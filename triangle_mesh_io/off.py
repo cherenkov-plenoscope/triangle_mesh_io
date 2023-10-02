@@ -15,12 +15,61 @@ import numpy as np
 
 def init():
     """
-    Returns an empty dict-structure for an object.
+    Returns an empty off-dict.
     """
     return {"v": [], "f": []}
 
 
-def diff(a, b, eps=1e-6):
+def minimal():
+    """
+    Returns a minimal cube (1, 1, 1).
+    """
+    out = init()
+    out["v"] = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [1.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 1.0],
+            [1.0, 1.0, 1.0],
+            [0.0, 1.0, 1.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
+    INDEX_STARTS_AT_0 = -1
+    out["f"] = INDEX_STARTS_AT_0 + np.array(
+        [
+            [1, 2, 6],
+            [6, 5, 1],
+            [2, 3, 6],
+            [6, 3, 7],
+            [5, 6, 7],
+            [7, 8, 5],
+            [3, 7, 4],
+            [7, 8, 4],
+            [1, 4, 8],
+            [8, 5, 1],
+            [1, 2, 3],
+            [3, 4, 1],
+        ]
+    )
+    return out
+
+
+def diff(a, b, v_eps=1e-6):
+    """
+    Lists the differences between the offs 'a' and 'b'.
+
+    Parameters
+    ----------
+    a : dict (off-dict)
+        The first off-object.
+    b : dict (off-dict)
+        The second off-object.
+    v_eps : float
+        Vertex 'v' differences up to a distance of 'v_eps' will be ignored.
+    """
     diffs = []
     if len(a["v"]) != len(b["v"]):
         diffs.append(("len(v)", len(a["v"]), len(b["v"])))
@@ -29,10 +78,10 @@ def diff(a, b, eps=1e-6):
             av = np.array(a["v"][i])
             bv = np.array(b["v"][i])
             delta = np.linalg.norm(av - bv)
-            if delta > eps:
+            if delta > v_eps:
                 diffs.append(
                     (
-                        "v[{:d}]: delta > {:e}".format(i, eps),
+                        "v[{:d}]: delta > {:e}".format(i, v_eps),
                         a["v"][i],
                         b["v"][i],
                     )

@@ -4,7 +4,7 @@ import io
 
 def init():
     """
-    Returns an empty dict-structure for a Wavefront.
+    Returns an empty object-wavefront-dict.
     """
     return {
         "v": [],
@@ -13,8 +13,62 @@ def init():
     }
 
 
+def minimal():
+    """
+    Returns a minimal cube (1, 1, 1) with six sub-meshes. Each
+    face of the cube is one individual mesh.
+    """
+    obj_str = (
+        "# vertices\n"
+        "v 1.0 0.0 0.0\n"
+        "v 1.0 1.0 0.0\n"
+        "v 0.0 1.0 0.0\n"
+        "v 0.0 0.0 0.0\n"
+        "v 1.0 0.0 1.0\n"
+        "v 1.0 1.0 1.0\n"
+        "v 0.0 1.0 1.0\n"
+        "v 0.0 0.0 1.0\n"
+        "# vertex normals\n"
+        "vn 1.0 0.0 0.0\n"
+        "vn 0.0 1.0 0.0\n"
+        "vn 0.0 0.0 1.0\n"
+        "vn -1.0 0.0 0.0\n"
+        "vn 0.0 -1.0 0.0\n"
+        "vn 0.0 0.0 -1.0\n"
+        "# faces\n"
+        "usemtl pos-x\n"
+        "f 1//1 2//1 6//1\n"
+        "f 6//1 5//1 1//1\n"
+        "usemtl pos-y\n"
+        "f 2//2 3//2 6//2\n"
+        "f 6//2 3//2 7//2\n"
+        "usemtl pos-z\n"
+        "f 5//3 6//3 7//3\n"
+        "f 7//3 8//3 5//3\n"
+        "usemtl neg-x\n"
+        "f 3//4 7//4 4//4\n"
+        "f 7//4 8//4 4//4\n"
+        "usemtl neg-y\n"
+        "f 1//5 4//5 8//5\n"
+        "f 8//5 5//5 1//5\n"
+        "usemtl neg-z\n"
+        "f 1//6 2//6 3//6\n"
+        "f 3//6 4//6 1//6\n"
+    )
+    return loads(obj_str)
+
+
 def dumps(obj):
-    # COUNTING STARTS AT ONE
+    """
+    Serializes a wavefront-object-dict into a string.
+
+    Parameters
+    ----------
+    obj : dict (object-wavefront-dict)
+        The object-wavefront to be serialized.
+    """
+
+    # counting starts at one
     s = io.StringIO()
     s.write("# vertices\n")
     for v in obj["v"]:
@@ -65,6 +119,14 @@ def _face_from_line(line):
 
 
 def loads(s):
+    """
+    Deserializes a wavefront-object-dict from a string 's'.
+
+    Parameters
+    ----------
+    s : str
+        A string with the payload of an '.obj'-file.
+    """
     ss = io.StringIO()
     ss.write(s)
     ss.seek(0)
@@ -121,6 +183,21 @@ def _angle_between_rad(a, b, eps=1e-9):
 
 
 def diff(a, b, v_eps=1e-6, vn_eps_rad=1e-6):
+    """
+    Lists the differences between the wavefront-objects 'a' and 'b'.
+
+    Parameters
+    ----------
+    a : dict (wavefront-object)
+        The first wavefront-object.
+    b : dict (wavefront-object)
+        The second wavefront-object.
+    v_eps : float
+        Vertex 'v' differences up to a distance of 'v_eps' will be ignored.
+    vn_eps_rad : float
+        Vertex-normal 'vn' differences up to angles of 'vn_eps_rad' will be
+        ignored. In radians.
+    """
     diffs = []
 
     if len(a["v"]) != len(b["v"]):

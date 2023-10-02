@@ -16,15 +16,15 @@ def _dtype():
         ("normal.x", np.float32),
         ("normal.y", np.float32),
         ("normal.z", np.float32),
+        ("vertex-0.x", np.float32),
+        ("vertex-0.y", np.float32),
+        ("vertex-0.z", np.float32),
         ("vertex-1.x", np.float32),
         ("vertex-1.y", np.float32),
         ("vertex-1.z", np.float32),
         ("vertex-2.x", np.float32),
         ("vertex-2.y", np.float32),
         ("vertex-2.z", np.float32),
-        ("vertex-3.x", np.float32),
-        ("vertex-3.y", np.float32),
-        ("vertex-3.z", np.float32),
         ("attribute_byte_count", np.uint16),
     ]
 
@@ -47,6 +47,64 @@ def diff(a, b, eps=1e-6):
                     )
                 )
     return diffs
+
+
+def minimal():
+    """
+    Returns a minimal cube (1, 1, 1).
+    """
+    vertices = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [1.0, 1.0, 0.0],
+            [0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 1.0],
+            [1.0, 1.0, 1.0],
+            [0.0, 1.0, 1.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
+    INDEX_STARTS_AT_0 = -1
+    faces = INDEX_STARTS_AT_0 + np.array(
+        [
+            [1, 2, 6],
+            [6, 5, 1],
+            [2, 3, 6],
+            [6, 3, 7],
+            [5, 6, 7],
+            [7, 8, 5],
+            [3, 7, 4],
+            [7, 8, 4],
+            [1, 4, 8],
+            [8, 5, 1],
+            [1, 2, 3],
+            [3, 4, 1],
+        ]
+    )
+    out = init(size=len(faces))
+    for i in range(len(faces)):
+        out["vertex-0.x"][i] = vertices[faces[i, 0], 0]
+        out["vertex-0.y"][i] = vertices[faces[i, 0], 1]
+        out["vertex-0.z"][i] = vertices[faces[i, 0], 2]
+        out["vertex-1.x"][i] = vertices[faces[i, 1], 0]
+        out["vertex-1.y"][i] = vertices[faces[i, 1], 1]
+        out["vertex-1.z"][i] = vertices[faces[i, 1], 2]
+        out["vertex-2.x"][i] = vertices[faces[i, 2], 0]
+        out["vertex-2.y"][i] = vertices[faces[i, 2], 1]
+        out["vertex-2.z"][i] = vertices[faces[i, 2], 2]
+
+        e01 = vertices[faces[i, 0]] - vertices[faces[i, 1]]
+        e12 = vertices[faces[i, 1]] - vertices[faces[i, 2]]
+        n = np.cross(e01, e12)
+
+        out["normal.x"][i] = n[0]
+        out["normal.y"][i] = n[1]
+        out["normal.z"][i] = n[2]
+
+        out["attribute_byte_count"][i] = 0
+
+    return out
 
 
 def init(size=0):
@@ -135,17 +193,17 @@ def _loads_ascii(s):
         out["normal.y"][i] = n[1]
         out["normal.z"][i] = n[2]
 
-        out["vertex-1.x"][i] = v[0][0]
-        out["vertex-1.y"][i] = v[0][1]
-        out["vertex-1.z"][i] = v[0][2]
+        out["vertex-0.x"][i] = v[0][0]
+        out["vertex-0.y"][i] = v[0][1]
+        out["vertex-0.z"][i] = v[0][2]
 
-        out["vertex-2.x"][i] = v[1][0]
-        out["vertex-2.y"][i] = v[1][1]
-        out["vertex-2.z"][i] = v[1][2]
+        out["vertex-1.x"][i] = v[1][0]
+        out["vertex-1.y"][i] = v[1][1]
+        out["vertex-1.z"][i] = v[1][2]
 
-        out["vertex-3.x"][i] = v[2][0]
-        out["vertex-3.y"][i] = v[2][1]
-        out["vertex-3.z"][i] = v[2][2]
+        out["vertex-2.x"][i] = v[2][0]
+        out["vertex-2.y"][i] = v[2][1]
+        out["vertex-2.z"][i] = v[2][2]
 
     return out
 
@@ -165,6 +223,13 @@ def _dumps_ascii(stl):
         ss.write("    outer loop\n")
         ss.write(
             "        vertex {:e} {:e} {:e}\n".format(
+                stl["vertex-0.x"][i],
+                stl["vertex-0.y"][i],
+                stl["vertex-0.z"][i],
+            )
+        )
+        ss.write(
+            "        vertex {:e} {:e} {:e}\n".format(
                 stl["vertex-1.x"][i],
                 stl["vertex-1.y"][i],
                 stl["vertex-1.z"][i],
@@ -175,13 +240,6 @@ def _dumps_ascii(stl):
                 stl["vertex-2.x"][i],
                 stl["vertex-2.y"][i],
                 stl["vertex-2.z"][i],
-            )
-        )
-        ss.write(
-            "        vertex {:e} {:e} {:e}\n".format(
-                stl["vertex-3.x"][i],
-                stl["vertex-3.y"][i],
-                stl["vertex-3.z"][i],
             )
         )
         ss.write("    endloop\n")

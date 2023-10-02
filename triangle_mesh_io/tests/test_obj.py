@@ -10,6 +10,25 @@ OBJ_PATH = pkg_resources.resource_filename(
 )
 
 
+def test_minimal():
+    with tempfile.TemporaryDirectory(prefix="triangle_mesh_io_") as tmp:
+        cube_path = os.path.join(tmp, "cube.obj")
+
+        cube = tmi.obj.minimal()
+
+        with open(cube_path, "wt") as f:
+            f.write(tmi.obj.dumps(cube))
+
+        with open(cube_path, "rt") as f:
+            cube_back = tmi.obj.loads(f.read())
+
+        diff = tmi.obj.diff(cube, cube_back)
+
+        if diff:
+            print(diff)
+        assert len(diff) == 0
+
+
 def test_oby_io():
     with tempfile.TemporaryDirectory(prefix="triangle_mesh_io_") as tmp:
         tmp_path = os.path.join(tmp, "my_thing.obj")
