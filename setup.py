@@ -14,7 +14,7 @@ with open(os.path.join("triangle_mesh_io", "version.py")) as f:
 setuptools.setup(
     name="triangle_mesh_io",
     version=version,
-    description="This is triangle_mesh_io.",
+    description="Load and dump triangle-meshes from and to OBJ, OFF, and STL.",
     long_description=long_description,
     long_description_content_type="text/x-rst",
     url="https://github.com/cherenkov-plenoscope/triangle_mesh_io",
