@@ -1,7 +1,8 @@
 ################
 Triangle Mesh IO
 ################
-|TestStatus| |PyPiStatus| |BlackStyle|
+|TestStatus| |PyPiStatus| |BlackStyle| |BlackPackStyle| |MITLicenseBadge|
+
 
 
 Supports ``.obj`` object-wavefront, ``.off`` object-file-format,  and ``.stl``
@@ -135,8 +136,9 @@ Example
 Formats
 *******
 
-``triangle_mesh_io`` does not convert between mesh-formats.
-The features of the formats are very different: ``obj >> off >> stl``.
+``triangle_mesh_io`` has only limited features to convert between mesh-formats.
+The formats are very different and the amount of information is roughly:
+``obj >> off >> stl``.
 Thus the python-dicts for the individual
 formats are not the same. Each dict-format follows its corresponding
 file-format.
@@ -145,7 +147,7 @@ file-format.
 +--------------------------+------------+------------+------------+
 |                          |  ``.obj``  |  ``.off``  |  ``.stl``  |
 +==========================+============+============+============+
-| can subdivide a meshe    |Yes (usemtl)|No          |No          |
+| can subdivide a mesh     |Yes (usemtl)|No          |No          |
 +--------------------------+------------+------------+------------+
 | can have surface-normals |Yes (vn)    |No          |Depends     |
 +--------------------------+------------+------------+------------+
@@ -184,3 +186,8 @@ export of your work-flow.
 .. |BlackStyle| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/psf/black
 
+.. |BlackPackStyle| image:: https://img.shields.io/badge/pack%20style-black-000000.svg
+    :target: https://github.com/cherenkov-plenoscope/black_pack
+
+.. |MITLicenseBadge| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+    :target: https://opensource.org/licenses/MIT
