@@ -1,20 +1,22 @@
 import triangle_mesh_io as tmi
-import pkg_resources
+from importlib import resources as importlib_resources
 import os
 import tempfile
 
 
-STL_ASCII_PATH = pkg_resources.resource_filename(
-    package_or_requirement="triangle_mesh_io",
-    resource_name=os.path.join(
-        "tests", "resources", "gridfinity_cup_modules_x1-y1-z5.stl"
-    ),
+STL_ASCII_PATH = os.path.join(
+    importlib_resources.files("triangle_mesh_io"),
+    "tests",
+    "resources",
+    "gridfinity_cup_modules_x1-y1-z5.stl",
 )
 
 
-STL_BINARY_PATH = pkg_resources.resource_filename(
-    package_or_requirement="triangle_mesh_io",
-    resource_name=os.path.join("tests", "resources", "utah_teapot.stl"),
+STL_BINARY_PATH = os.path.join(
+    importlib_resources.files("triangle_mesh_io"),
+    "tests",
+    "resources",
+    "utah_teapot.stl",
 )
 
 

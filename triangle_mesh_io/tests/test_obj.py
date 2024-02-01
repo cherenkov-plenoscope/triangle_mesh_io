@@ -1,12 +1,14 @@
 import triangle_mesh_io as tmi
-import pkg_resources
+from importlib import resources as importlib_resources
 import tempfile
 import os
 
 
-OBJ_PATH = pkg_resources.resource_filename(
-    package_or_requirement="triangle_mesh_io",
-    resource_name=os.path.join("tests", "resources", "optical_mirror.obj"),
+OBJ_PATH = os.path.join(
+    importlib_resources.files("triangle_mesh_io"),
+    "tests",
+    "resources",
+    "optical_mirror.obj",
 )
 
 
