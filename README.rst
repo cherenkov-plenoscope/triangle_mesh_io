@@ -5,9 +5,9 @@ Triangle Mesh IO
 
 
 
-Supports ``.obj`` object-wavefront, ``.off`` object-file-format,  and ``.stl``
-stereo-litographie (both binary and ascii).
-This pyhton-package serializes meshes of triangles from a python-dict into
+Supports ``.obj`` object wavefront, ``.off`` object file format,  and ``.stl``
+stereo litographie (both binary and ascii).
+This pyhton package serializes meshes of triangles from a python dict into
 a string (``dumps()``) or deserializes meshes of triangles from a string
 (``loads()``) into a pyhton-dict.
 
@@ -28,13 +28,13 @@ Functions
 For each file-format, ``triangle_mesh_io`` provides five basic functions:
 
 
-- ``m = loads(s)`` Loads the meshes/triangles from a string into a python-dict.
+- ``m = loads(s)`` Loads the meshes/triangles from a string into a python dict.
 
-- ``s = dumps(m)`` Dumps the meshes/triangles from a python-dict into a string.
+- ``s = dumps(m)`` Dumps the meshes/triangles from a python dict into a string.
 
 - ``l = diff(m1, m2)`` Lists differences ``l`` between two meshes ``m1``, and ``m2``.
 
-- ``m = init()`` Initializes an empty python-dict to hold the meshes/triangles.
+- ``m = init()`` Initializes an empty python dict to hold the meshes/triangles.
 
 - ``m = minimal()`` Initializes a cube (1,1,1) as a minimal example of a populated dict.
 
@@ -136,12 +136,12 @@ Example
 Formats
 *******
 
-``triangle_mesh_io`` has only limited features to convert between mesh-formats.
+``triangle_mesh_io`` has only limited features to convert between mesh formats.
 The formats are very different and the amount of information is roughly:
 ``obj >> off >> stl``.
-Thus the python-dicts for the individual
+Thus the python dicts for the individual
 formats are not the same. Each dict-format follows its corresponding
-file-format.
+file format.
 
 
 +--------------------------+------------+------------+------------+
