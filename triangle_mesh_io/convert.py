@@ -5,6 +5,24 @@ from . import off as _off
 from . import stl as _stl
 
 
+def stl2obj(stl, mtl="NAME_OF_MATERIAL"):
+    """
+    Returns a wavefron-dictionary from an Stereolithography triangle list.
+
+    Parameters
+    ----------
+    stl : numpy.recarray with dtype=triangle_medh_io.stl._dtype()
+        Contains the faces and their vertices defined in the Stereolithography
+        triangle list.
+    mtl : str
+        The key given to the material in the output wavefront.
+    """
+    vertices, faces = _stl._to_vertices_and_faces(stl=stl)
+    return _init_obj_from_vertices_and_faces_only(
+        vertices=vertices, faces=faces, mtl=mtl
+    )
+
+
 def off2obj(off, mtl="NAME_OF_MATERIAL"):
     """
     Returns a wavefron-dictionary from an Object-File-Format-dictionary.
@@ -17,12 +35,12 @@ def off2obj(off, mtl="NAME_OF_MATERIAL"):
     mtl : str
         The key given to the material in the output wavefront.
     """
-    return init_obj_from_vertices_and_faces_only(
+    return _init_obj_from_vertices_and_faces_only(
         vertices=off["v"], faces=off["f"], mtl=mtl
     )
 
 
-def init_obj_from_vertices_and_faces_only(
+def _init_obj_from_vertices_and_faces_only(
     vertices, faces, mtl="NAME_OF_MATERIAL"
 ):
     """

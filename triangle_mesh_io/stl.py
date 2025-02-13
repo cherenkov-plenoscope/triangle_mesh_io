@@ -7,6 +7,7 @@ See: https://en.wikipedia.org/wiki/STL_(file_format)
 Only a list of triangles. Not faces of a mesh.
 STL does not state anything about the relations of the facets.
 """
+
 import io
 import numpy as np
 
@@ -111,7 +112,11 @@ def init(size=0):
     """
     Returns
     """
-    return np.core.records.recarray(shape=size, dtype=_dtype())
+    return np.recarray(shape=size, dtype=_dtype())
+
+
+def _num_bytes_per_triangle():
+    return len(init(size=1).tobytes())
 
 
 def loads(s, mode="ascii"):
@@ -251,12 +256,15 @@ def _dumps_ascii(stl):
 
 
 def _loads_binary(s):
+    NUM_BYTES_PER_TRIANGLE = _num_bytes_per_triangle()
     ss = io.BytesIO()
     ss.write(s)
     ss.seek(0)
     _header = ss.read(80)
     num_triangles = np.frombuffer(ss.read(4), dtype=np.uint32)[0]
-    return np.frombuffer(ss.read(50 * num_triangles), dtype=_dtype())
+    return np.frombuffer(
+        ss.read(NUM_BYTES_PER_TRIANGLE * num_triangles), dtype=_dtype()
+    )
 
 
 def _dumps_binary(stl):
@@ -269,3 +277,36 @@ def _dumps_binary(stl):
 
     ss.seek(0)
     return ss.read()
+
+
+def _to_vertices_and_faces(stl):
+    num_faces = stl.shape[0]
+    num_vertices = 3 * num_faces
+    faces = np.zeros(shape=(num_faces, 3), dtype=int)
+    vertices = np.zeros(shape=(num_vertices, 3), dtype=float)
+
+    vi = 0
+    for fi in range(num_faces):
+        sface = stl[fi]
+        v0 = [sface["vertex-0.x"], sface["vertex-0.y"], sface["vertex-0.z"]]
+        v1 = [sface["vertex-1.x"], sface["vertex-1.y"], sface["vertex-1.z"]]
+        v2 = [sface["vertex-2.x"], sface["vertex-2.y"], sface["vertex-2.z"]]
+
+        vi0 = vi
+        vertices[vi] = v0
+        vi += 1
+
+        vi1 = vi
+        vertices[vi] = v1
+        vi += 1
+
+        vi2 = vi
+        vertices[vi] = v2
+        vi += 1
+
+        faces[fi] = [vi0, vi1, vi2]
+
+    assert vi == num_vertices
+    assert fi + 1 == num_faces
+
+    return vertices, faces

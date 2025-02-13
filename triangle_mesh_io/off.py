@@ -9,6 +9,7 @@ A set of vertices and faces, but no vertex-normals.
 OFFs do not have groups or materials like OBJs.
 OFFs are indexed from zero, OBJs are indexed from one.
 """
+
 import io
 import numpy as np
 
@@ -205,3 +206,7 @@ def loads(s):
         idx_face += 1
 
     return off
+
+
+def _to_vertices_and_faces(off):
+    return np.asarray(off["v"], dtype=float), np.asarray(off["f"], dtype=int)
