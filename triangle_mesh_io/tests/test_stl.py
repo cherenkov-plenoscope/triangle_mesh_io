@@ -1,4 +1,5 @@
 import triangle_mesh_io as tmi
+import numpy as np
 from importlib import resources as importlib_resources
 import os
 import tempfile
@@ -97,3 +98,15 @@ def _test_stl(original_path, original_mode):
 def test_stl():
     _test_stl(original_path=STL_ASCII_PATH, original_mode="ascii")
     _test_stl(original_path=STL_BINARY_PATH, original_mode="binary")
+
+
+def test_convert_gridfinity_stl_to_obj():
+    with open(STL_ASCII_PATH, "rt") as f:
+        gridfinity_stl = tmi.stl.loads(f.read(), mode="ascii")
+    gridfinity_obj = tmi.convert.stl2obj(gridfinity_stl)
+
+
+def test_convert_teapot_stl_to_obj():
+    with open(STL_BINARY_PATH, "rb") as f:
+        teapot_stl = tmi.stl.loads(f.read(), mode="binary")
+    teapot_obj = tmi.convert.stl2obj(teapot_stl)

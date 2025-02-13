@@ -12,7 +12,10 @@ def test_convert_off2obj():
 
 def test_convert_stl2obj():
     stl_cube = tmi.stl.minimal()
-    obj_cube = tmi.convert.stl2obj(stl=stl_cube, mtl="abc")
+    obj_cube = tmi.convert.stl2obj(
+        stl=stl_cube,
+        mtl="abc",
+    )
 
     assert len(stl_cube) == sum(
         [len(obj_cube["mtl"][mkey]) for mkey in obj_cube["mtl"]]
