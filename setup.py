@@ -28,7 +28,7 @@ setuptools.setup(
             os.path.join("tests", "resources", "*"),
         ],
     },
-    install_requires=["sklearn"],
+    install_requires=[],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
