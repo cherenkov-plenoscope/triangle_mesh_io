@@ -127,26 +127,38 @@ def _init_obj_from_vertices_and_faces_only(
         wavefront["v"].append(v)
 
     vn_count = 0
-    for i in range(len(faces)):
-        face = faces[i]
+    for face_idx in range(faces.shape[0]):
+        face = faces[face_idx]
         ff = {}
         ff["v"] = [face[0], face[1], face[2]]
 
         fvn = [-1, -1, -1]
-        for vertex_idx in range(3):
+        for vdim in range(3):
             if vertex_normal_eps > 0.0:
                 vn = _estimate_vertex_normal_based_on_neighbors(
-                    vertex_idx=vertex_idx,
-                    face_idx=i,
+                    vertex_idx=face[vdim],
+                    face_idx=face_idx,
                     face_normals=face_normals,
                     vertices_to_faces=vertices_to_faces,
                     vertex_normal_eps=vertex_normal_eps,
                 )
             else:
-                vn = face_normals[i]
+                vn = face_normals[face_idx]
+
+            omega = _angle_between_rad(vn, face_normals[face_idx])
+            if omega > np.deg2rad(0.1):
+                print(
+                    "face ",
+                    face_idx,
+                    "vertex ",
+                    vdim,
+                    "dev ",
+                    np.rad2deg(omega),
+                    "deg.",
+                )
 
             wavefront["vn"].append(vn)
-            fvn[vertex_idx] = vn_count
+            fvn[vdim] = vn_count
             vn_count += 1
 
         ff["vn"] = fvn
@@ -246,7 +258,7 @@ def _remove_unused_vertices(vertices, faces):
                 nvertices.append(vertices[vi])
             nface.append(vertex_use[vi])
         nfaces.append(nface)
-    return nvertices, nfaces
+    return np.asarray(nvertices, dtype=float), np.asarray(nfaces, dtype=int)
 
 
 def _make_normal_from_face(a, b, c):
@@ -380,12 +392,13 @@ def _estimate_vertex_normal_based_on_neighbors(
 
     normals = [face_normal]
     for nface_idx in neighbor_faces:
-        nface_normal = copy.copy(face_normals[nface_idx])
-        nface_normal = nface_normal / np.linalg.norm(nface_normal)
-        theta = _angle_between_rad(face_normal, nface_normal)
+        if nface_idx != face_idx:
+            nface_normal = copy.copy(face_normals[nface_idx])
+            nface_normal = nface_normal / np.linalg.norm(nface_normal)
+            theta = _angle_between_rad(face_normal, nface_normal)
 
-        if theta >= vertex_normal_eps:
-            normals.append(nface_normal)
+            if theta <= vertex_normal_eps:
+                normals.append(nface_normal)
 
     normals = np.asarray(normals)
 
