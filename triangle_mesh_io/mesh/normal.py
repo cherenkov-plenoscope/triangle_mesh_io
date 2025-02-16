@@ -1,5 +1,6 @@
 import numpy as np
 import copy
+import warnings
 
 
 def make_normal_from_face(a, b, c):
