@@ -23,7 +23,7 @@ def _find_clusters_dbscan(x, eps):
         points in 'x' closer than 'eps' will be considered part of the same
         cluster.
     """
-    clustering = sklearn.cluster.DBSCAN(eps=eps).fit(x)
+    clustering = sklearn.cluster.DBSCAN(eps=eps, min_samples=2).fit(x)
 
     NOISE = -1
 
