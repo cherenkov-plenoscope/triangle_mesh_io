@@ -22,6 +22,7 @@ setuptools.setup(
     author_email="sebastian-achim.mueller@mpi-hd.mpg.de",
     packages=[
         "triangle_mesh_io",
+        "triangle_mesh_io.mesh",
     ],
     package_data={
         "triangle_mesh_io": [
