@@ -9,6 +9,7 @@ import numpy as np
 import copy
 
 
+"""
 class Mesh:
     def __init__(self, vertices, faces):
         self.vertices = copy.copy(vertices)
@@ -20,40 +21,81 @@ class Mesh:
     @classmethod
     def from_stl(cls, stl):
         vertices, faces = _stl.to_vertices_and_faces(stl=stl)
+
+        vertices, faces = init_from_vertices_and_faces(
+            vertices=vertices,
+            faces=faces,
+        )
+
         return cls(vertices=vertices, faces=faces)
+
+    def to_stl(self):
+        num_faces = self.faces.shape[0]
+        stl = _stl.init(size=num_faces)
+
+        face_normals = normal.make_face_normals_from_vertices_and_faces(
+            vertices=self.vertices, faces=self.faces
+        )
+
+        v = self.vertices
+        f = self.faces
+        n = face_normals
+        DIMS = {0: "x", 1: "y", 2: "z"}
+        VERTS = {0: "0", 1: "1", 2: "2"}
+        for i in range(num_faces):
+            for vert in VERTS:
+                for dim in DIMS:
+                    stl[f"vertex-{VERTS[vert]:s}.{DIMS[dim]:s}"][i] = v[
+                        f[i, vert], dim
+                    ]
+            for dim in DIMS:
+                stl[f"normal.{DIMS[dim]:s}"][i] = n[i][dim]
+        return stl
 
     @classmethod
     def from_off(cls, off):
         vertices, faces = _off.to_vertices_and_faces(off=off)
+
+        vertices, faces = init_from_vertices_and_faces(
+            vertices=vertices,
+            faces=faces,
+        )
+
         return cls(vertices=vertices, faces=faces)
+
+    def to_off(self):
+        off = _off.init()
+        off["v"] = copy.copy(self.vertices)
+        off["f"] = copy.copy(self.faces)
+        return off
 
     @classmethod
     def from_obj(cls, obj, mtlkeys=None):
         vertices, faces = _obj.to_vertices_and_faces(obj=obj, mtlkeys=mtlkeys)
+
+        vertices, faces = init_from_vertices_and_faces(
+            vertices=vertices,
+            faces=faces,
+        )
+
         return cls(vertices=vertices, faces=faces)
 
-    def remove_artifacts(self):
-        vertices, faces = artifacts.remove_artifacts_from_vertices_and_faces(
-            vertices=self.vertices, faces=self.faces
+    def to_obj(
+        self,
+        mtl="NAME_OF_MATERIAL",
+        vertex_eps=None,
+        vertex_normal_eps=np.deg2rad(1e-9),
+        vertex_normal_smooth_eps=np.deg2rad(2.5),
+    ):
+        return init_from_vertices_and_faces_with_vertex_normals(
+            vertices=self.vertices,
+            faces=self.faces,
+            mtl=mtl,
+            vertex_eps=vertex_eps,
+            vertex_normal_eps=vertex_normal_eps,
+            vertex_normal_smooth_eps=vertex_normal_smooth_eps,
         )
-        return Mesh(vertices=vertices, faces=faces)
-
-    def remove_duplicate_vertices(self, vertex_eps=None):
-        if vertex_eps is None:
-            vertex_eps = 1e-5 * cluster.guess_68_percent_containment_width_3d(
-                xyz=self.vertices
-            )
-        faces = make_faces_use_commen_vertices(
-            vertices=self.vertices, faces=self.faces, vertex_eps=vertex_eps
-        )
-        mesh = Mesh(vertices=self.vertices, faces=faces)
-        return mesh.remove_artifacts()
-
-    def unify_vertex_spin_in_faces_on_same_manifold(self):
-        faces = graph.make_faces_on_same_manifold_have_same_vertex_winding_direction(
-            faces=self.faces
-        )
-        return Mesh(vertices=self.vertices, faces=faces)
+"""
 
 
 def init_from_vertices_and_faces(vertices, faces, vertex_eps=None):
@@ -178,8 +220,7 @@ def init_from_vertices_and_faces_with_vertex_normals(
     wavefront = _obj.init()
     wavefront["mtl"][mtl] = []
 
-    for v in vertices:
-        wavefront["v"].append(v)
+    wavefront["v"] = np.asarray(vertices, dtype=float)
 
     vn_count = 0
     for face_idx in range(faces.shape[0]):
