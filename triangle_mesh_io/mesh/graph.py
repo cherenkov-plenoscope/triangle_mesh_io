@@ -131,17 +131,17 @@ class Flood:
         self.nfaces = faces_sharing_at_least_one_edge
 
         self.wound_faces = faces.copy()
-        self.num_meshes = 0
-        self.faces_meshes = -1 * np.ones(shape=faces.shape[0], dtype=int)
+        self.num_manifolds = 0
+        self.faces_manifolds = -1 * np.ones(shape=faces.shape[0], dtype=int)
 
     def seed_new_mesh(self):
         assert len(self.interface) == 0
         face_idx = self.todo.pop()
         self.wound_faces[face_idx] = self.faces[face_idx]
-        self.faces_meshes[face_idx] = self.num_meshes
+        self.faces_manifolds[face_idx] = self.num_manifolds
         self.done.add(face_idx)
 
-        self.num_meshes += 1
+        self.num_manifolds += 1
 
         for neighbor_face_idx in self.nfaces[face_idx]:
             if neighbor_face_idx in self.todo:
@@ -166,7 +166,7 @@ class Flood:
                     face_b=self.faces[face_idx],
                 )
             )
-            self.faces_meshes[face_idx] = self.num_meshes
+            self.faces_manifolds[face_idx] = self.num_manifolds
 
             self.done.add(face_idx)
 
