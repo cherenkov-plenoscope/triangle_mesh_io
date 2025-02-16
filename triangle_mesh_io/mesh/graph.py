@@ -17,9 +17,7 @@ def find_edges_sharing_faces(faces):
     edges = {}
     for fi, face in enumerate(faces):
         sface = sorted(face)
-        e0 = (sface[0], sface[1])
-        e1 = (sface[1], sface[2])
-        e2 = (sface[0], sface[2])
+        e0, e1, e2 = make_face_edges(sface)
         if e0 not in edges:
             edges[e0] = [fi]
         else:
