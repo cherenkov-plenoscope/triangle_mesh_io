@@ -208,5 +208,5 @@ def loads(s):
     return off
 
 
-def _to_vertices_and_faces(off):
+def to_vertices_and_faces(off):
     return np.asarray(off["v"], dtype=float), np.asarray(off["f"], dtype=int)

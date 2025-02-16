@@ -279,7 +279,7 @@ def _dumps_binary(stl):
     return ss.read()
 
 
-def _to_vertices_and_faces(stl):
+def to_vertices_and_faces(stl):
     num_faces = stl.shape[0]
     num_vertices = 3 * num_faces
     faces = np.zeros(shape=(num_faces, 3), dtype=int)

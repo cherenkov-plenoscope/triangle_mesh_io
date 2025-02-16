@@ -1,4 +1,5 @@
 import numpy as np
+import copy
 
 
 def remove_artifacts_from_vertices_and_faces(vertices, faces):
@@ -41,3 +42,23 @@ def remove_vertices_which_are_not_used_by_faces(vertices, faces):
     return np.asarray(out_vertices, dtype=float), np.asarray(
         out_faces, dtype=int
     )
+
+
+def remove_vertex_normals_which_are_not_used_by_faces(obj):
+    out = {"v": copy.copy(obj["v"]), "vn": [], "mtl": {}}
+    vn_use = {}
+
+    for mtl in obj["mtl"]:
+        out["mtl"][mtl] = []
+        for face_idx in range(len(obj["mtl"][mtl])):
+            old_face = obj["mtl"][mtl][face_idx]
+            new_face = {"v": old_face["v"], "vn": []}
+
+            for vn in old_face["vn"]:
+                if vn not in vn_use:
+                    vn_use[vn] = len(vn_use)
+                    out["vn"].append(obj["vn"][vn])
+                new_face["vn"].append(vn_use[vn])
+            out["mtl"][mtl].append(new_face)
+
+    return out

@@ -1,8 +1,12 @@
 import numpy as np
 
 
-def make_face_edges(f):
-    return ((f[0], f[1]), (f[1], f[2]), (f[2], f[0]))
+def make_face_edges(face):
+    return ((face[0], face[1]), (face[1], face[2]), (face[2], face[0]))
+
+
+def _sort_edge(edge):
+    return tuple(sorted(edge))
 
 
 def list_faces_sharing_same_vertex(vertices, faces):
@@ -18,6 +22,10 @@ def find_edges_sharing_faces(faces):
     for fi, face in enumerate(faces):
         sface = sorted(face)
         e0, e1, e2 = make_face_edges(sface)
+        e0 = _sort_edge(e0)
+        e1 = _sort_edge(e1)
+        e2 = _sort_edge(e2)
+
         if e0 not in edges:
             edges[e0] = [fi]
         else:
@@ -64,15 +72,13 @@ def edges_have_same_vertices_independent_of_direction(edge_a, edge_b):
     return sa == sb
 
 
-def make_second_face_with_same_winding_as_first(a, b):
-    sa = set(a)
-    sb = set(b)
-    common_vertices = sa.intersection(sb)
-    only_in_b_but_not_in_a = sb.difference(sa)
-    assert len(common_vertices) == 2
-    assert len(only_in_b_but_not_in_a) == 1
-    ea = make_face_edges(a)
-    eb = make_face_edges(b)
+def faces_share_edge_independent_of_direction(face_a, face_b):
+    ea = make_face_edges(face_a)
+    eb = make_face_edges(face_b)
+
+    ca = -1
+    cb = -1
+    do_share = False
 
     for ia, ib in [
         (0, 0),
@@ -86,19 +92,37 @@ def make_second_face_with_same_winding_as_first(a, b):
         (2, 2),
     ]:
         if edges_have_same_vertices_independent_of_direction(ea[ia], eb[ib]):
+            ca = ia
+            cb = ib
+            do_share = True
             break
-    # print("a", ea[ia], "b", eb[ib])
+    return do_share, ca, cb
+
+
+def make_second_face_with_same_winding_as_first(face_a, face_b):
+    sa = set(face_a)
+    sb = set(face_b)
+    common_vertices = sa.intersection(sb)
+    only_in_b_but_not_in_a = sb.difference(sa)
+    assert len(common_vertices) == 2
+    assert len(only_in_b_but_not_in_a) == 1
+
+    do_share, ia, ib = faces_share_edge_independent_of_direction(
+        face_a=face_a, face_b=face_b
+    )
+    assert do_share
 
     if ea[ia][0] == eb[ib][1] and ea[ia][1] == eb[ib][0]:
         # winding is the same, do not do anything
-        return np.asarray(b)
+        return np.asarray(face_b)
     else:
         # winding needs to be turned around
-        return np.flip(b)
+        return np.flip(face_b)
 
 
 class Flood:
-    def __init__(self, faces, faces_sharing_at_least_one_edge):
+    def __init__(self, faces, faces_sharing_at_least_one_edge, verbose=False):
+        self.verbose = verbose
         self.done = set()
         self.interface = set()
         self.todo = set(np.arange(len(faces)))
@@ -138,8 +162,8 @@ class Flood:
 
             self.wound_faces[face_idx] = (
                 make_second_face_with_same_winding_as_first(
-                    a=self.wound_faces[neighbor_face_idx],
-                    b=self.faces[face_idx],
+                    face_a=self.wound_faces[neighbor_face_idx],
+                    face_b=self.faces[face_idx],
                 )
             )
             self.faces_meshes[face_idx] = self.num_meshes
@@ -157,7 +181,8 @@ class Flood:
     def flood(self):
         self.seed_new_mesh()
         while not self.is_done():
-            print("done", len(self.done), "interface", len(self.interface))
+            if self.verbose:
+                print("done", len(self.done), "interface", len(self.interface))
             if len(self.interface) > 0:
                 self.flood_mesh_along_the_interface()
             else:

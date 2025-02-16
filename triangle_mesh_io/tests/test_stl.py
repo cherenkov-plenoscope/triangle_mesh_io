@@ -103,10 +103,10 @@ def test_stl():
 def test_convert_gridfinity_stl_to_obj():
     with open(STL_ASCII_PATH, "rt") as f:
         gridfinity_stl = tmi.stl.loads(f.read(), mode="ascii")
-    gridfinity_obj = tmi.convert.stl2obj(gridfinity_stl)
+    gridfinity_obj = tmi.convert.stl_to_obj(gridfinity_stl)
 
 
 def test_convert_teapot_stl_to_obj():
     with open(STL_BINARY_PATH, "rb") as f:
         teapot_stl = tmi.stl.loads(f.read(), mode="binary")
-    teapot_obj = tmi.convert.stl2obj(teapot_stl)
+    teapot_obj = tmi.convert.stl_to_obj(teapot_stl)

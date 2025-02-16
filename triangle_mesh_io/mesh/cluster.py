@@ -1,8 +1,17 @@
 import numpy as np
 import sklearn.cluster
+import scipy.spatial
 
 
 def find_clusters(x, eps):
+    return _find_clusters_dbscan(x=x, eps=eps)
+
+
+def _find_clusters_cKDTree(x, eps):
+    pass
+
+
+def _find_clusters_dbscan(x, eps):
     """
     Returns the clusters found in the point cloud 'x'.
 
@@ -40,6 +49,8 @@ def find_replacement_map(x, clusters):
     point in 'x'. This is to eliminate clusters of points. All points in a
     cluster will be replaced by a single point.
     """
+    x = np.asarray(x)
+
     _temp_replacement_map = {}
     for cluster_i in clusters:
         first_vertx = clusters[cluster_i][0]

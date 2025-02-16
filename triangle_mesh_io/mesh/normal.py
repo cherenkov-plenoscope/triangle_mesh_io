@@ -2,27 +2,6 @@ import numpy as np
 import copy
 
 
-def _group_normals(normals):
-    """
-    Identify equal normals so that those can be shared by faces.
-    This reduces storage space in obj-files and accelerates raytracing.
-    """
-    nset = set()
-    unique_normals = []
-    unique_map = []
-    unique_i = -1
-    for i in range(len(normals)):
-        normal = normals[i]
-        ntuple = (normal[0], normal[1], normal[2])
-        if ntuple not in nset:
-            nset.add(ntuple)
-            unique_i += 1
-            unique_normals.append(normal)
-        unique_map.append(unique_i)
-
-    return unique_normals, unique_map
-
-
 def make_normal_from_face(a, b, c):
     a = np.asarray(a)
     b = np.asarray(b)
@@ -61,17 +40,26 @@ def make_face_normals_from_vertices_and_faces(vertices, faces):
 
 
 def angle_between_rad(a, b):
+    NUMERIC_DOT_TOLLERANCE = 1.0 + 1e-9
     _a = np.asarray(a)
     _b = np.asarray(b)
     an = _a / np.linalg.norm(_a)
     bn = _b / np.linalg.norm(_b)
     assert len(an) == 3
     assert len(bn) == 3
-    return np.arccos(np.dot(an, bn))
+    theta = np.dot(an, bn)
+    if theta < NUMERIC_DOT_TOLLERANCE:
+        if theta > 1.0:
+            theta = 1.0
+    return np.arccos(theta)
 
 
 def estimate_vertex_normal_based_on_neighbors(
-    vertex_idx, face_idx, face_normals, vertices_to_faces, vertex_normal_eps
+    vertex_idx,
+    face_idx,
+    face_normals,
+    vertices_to_faces,
+    vertex_normal_smooth_eps,
 ):
     neighbor_faces = vertices_to_faces[vertex_idx]
     face_normal = copy.copy(face_normals[face_idx])
@@ -83,7 +71,7 @@ def estimate_vertex_normal_based_on_neighbors(
             nface_normal = nface_normal / np.linalg.norm(nface_normal)
             theta = angle_between_rad(face_normal, nface_normal)
 
-            if theta <= vertex_normal_eps:
+            if theta <= vertex_normal_smooth_eps:
                 normals.append(nface_normal)
 
     normals = np.asarray(normals)
