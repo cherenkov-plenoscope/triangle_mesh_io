@@ -72,10 +72,7 @@ def edges_have_same_vertices_independent_of_direction(edge_a, edge_b):
     return sa == sb
 
 
-def faces_share_edge_independent_of_direction(face_a, face_b):
-    ea = make_face_edges(face_a)
-    eb = make_face_edges(face_b)
-
+def faces_share_edge_independent_of_direction(edges_a, edges_b):
     ca = -1
     cb = -1
     do_share = False
@@ -91,7 +88,9 @@ def faces_share_edge_independent_of_direction(face_a, face_b):
         (2, 1),
         (2, 2),
     ]:
-        if edges_have_same_vertices_independent_of_direction(ea[ia], eb[ib]):
+        if edges_have_same_vertices_independent_of_direction(
+            edges_a[ia], edges_b[ib]
+        ):
             ca = ia
             cb = ib
             do_share = True
@@ -107,17 +106,35 @@ def make_second_face_with_same_winding_as_first(face_a, face_b):
     assert len(common_vertices) == 2
     assert len(only_in_b_but_not_in_a) == 1
 
+    edges_a = make_face_edges(face_a)
+    edges_b = make_face_edges(face_b)
+
     do_share, ia, ib = faces_share_edge_independent_of_direction(
-        face_a=face_a, face_b=face_b
+        edges_a=edges_a, edges_b=edges_b
     )
     assert do_share
 
-    if ea[ia][0] == eb[ib][1] and ea[ia][1] == eb[ib][0]:
+    if edges_a[ia][0] == edges_b[ib][1] and edges_a[ia][1] == edges_b[ib][0]:
         # winding is the same, do not do anything
         return np.asarray(face_b)
     else:
         # winding needs to be turned around
         return np.flip(face_b)
+
+
+def make_faces_on_same_manifold_have_same_vertex_winding_direction(
+    faces,
+    verbose=False,
+):
+    faces_sharing_at_least_one_edge = find_faces_sharing_at_least_one_edge(
+        faces=faces
+    )
+    flood = Flood(
+        faces=faces,
+        faces_sharing_at_least_one_edge=faces_sharing_at_least_one_edge,
+    )
+    flood.flood()
+    return flood.wound_faces
 
 
 class Flood:

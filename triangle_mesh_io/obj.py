@@ -280,3 +280,34 @@ def diff(a, b, v_eps=1e-6, vn_eps_rad=1e-6):
                                     )
                                 )
     return diffs
+
+
+def to_vertices_and_faces(obj, mtlkeys=None):
+    """
+    Returns vertices and faces of certain materials in mtlkeys.
+
+    Parameters
+    ----------
+    obj : object-wavefront dictionary
+        The object.
+    mtlkeys : list of str (default: None)
+        List of mtl keys to be put into the returned faces.
+        When mtlkeys is None (default), all materials will be used.
+    """
+    if mtlkeys is None:
+        mtlkeys = list(obj["mtl"].keys())
+
+    num_faces = 0
+    for mtlkey in mtlkeys:
+        num_faces += len(obj["mtl"][mtlkey])
+
+    vertices = np.array(obj["v"], dtype=float)
+    faces = np.zeros(shape=(num_faces, 3), dtype=int)
+
+    face_idx = 0
+    for mtlkey in mtlkeys:
+        for ff in obj["mtl"][mtlkey]:
+            faces[face_idx] = ff["v"]
+            face_idx += 1
+
+    return vertices, faces

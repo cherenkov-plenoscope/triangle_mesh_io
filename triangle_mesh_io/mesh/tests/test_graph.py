@@ -60,28 +60,29 @@ def test_faces_share_edge_independent_of_direction():
     _faces_share_edge = (
         tmi.mesh.graph.faces_share_edge_independent_of_direction
     )
+    _me = tmi.mesh.graph.make_face_edges
 
-    s, a, b = _faces_share_edge([0, 1, 2], [0, 1, 4])
+    s, a, b = _faces_share_edge(_me([0, 1, 2]), _me([0, 1, 4]))
     assert s
     assert a == 0
     assert b == 0
 
-    s, a, b = _faces_share_edge([0, 1, 2], [1, 0, 4])
+    s, a, b = _faces_share_edge(_me([0, 1, 2]), _me([1, 0, 4]))
     assert s
     assert a == 0
     assert b == 0
 
-    s, a, b = _faces_share_edge([0, 1, 2], [4, 0, 1])
+    s, a, b = _faces_share_edge(_me([0, 1, 2]), _me([4, 0, 1]))
     assert s
     assert a == 0
     assert b == 1
 
-    s, a, b = _faces_share_edge([0, 1, 2], [4, 1, 0])
+    s, a, b = _faces_share_edge(_me([0, 1, 2]), _me([4, 1, 0]))
     assert s
     assert a == 0
     assert b == 1
 
-    s, a, b = _faces_share_edge([0, 1, 2], [3, 4, 5])
+    s, a, b = _faces_share_edge(_me([0, 1, 2]), _me([3, 4, 5]))
     assert not s
     assert a == -1
     assert b == -1
@@ -92,11 +93,13 @@ def test_find_faces_sharing_at_least_one_edge():
     vertices, faces = tmi.off.to_vertices_and_faces(off=minimal)
     shares = tmi.mesh.graph.find_faces_sharing_at_least_one_edge(faces=faces)
 
+    _me = tmi.mesh.graph.make_face_edges
+
     for face_idx in shares:
         for neighbor_face_idx in shares[face_idx]:
             assert tmi.mesh.graph.faces_share_edge_independent_of_direction(
-                face_a=faces[face_idx],
-                face_b=faces[neighbor_face_idx],
+                edges_a=_me(faces[face_idx]),
+                edges_b=_me(faces[neighbor_face_idx]),
             )
 
         for foreign_face_idx in range(len(faces)):
@@ -106,8 +109,8 @@ def test_find_faces_sharing_at_least_one_edge():
             ):
                 do_share, _, _ = (
                     tmi.mesh.graph.faces_share_edge_independent_of_direction(
-                        face_a=faces[face_idx],
-                        face_b=faces[foreign_face_idx],
+                        edges_a=_me(faces[face_idx]),
+                        edges_b=_me(faces[foreign_face_idx]),
                     )
                 )
                 assert not do_share
