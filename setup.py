@@ -44,4 +44,9 @@ setuptools.setup(
         "Topic :: Multimedia :: Graphics :: 3D Modeling",
         "Topic :: Multimedia :: Graphics :: Editors",
     ],
+    entry_points={
+        "console_scripts": [
+            "triangle-mesh-io=triangle_mesh_io.apps.main:main",
+        ]
+    },
 )

@@ -23,7 +23,7 @@ STL_BINARY_PATH = os.path.join(
 
 def test_diff():
     with open(STL_ASCII_PATH, "rt") as f:
-        a = tmi.stl.loads(f.read(), mode="ascii")
+        a = tmi.stl.loads(f.read(), mode="t")
 
     assert not tmi.stl.diff(a=a, b=a)
     b = a.copy()
@@ -39,10 +39,10 @@ def test_minimal():
         cube = tmi.stl.minimal()
 
         with open(cube_path, "wt") as f:
-            f.write(tmi.stl.dumps(cube, mode="ascii"))
+            f.write(tmi.stl.dumps(cube, mode="t"))
 
         with open(cube_path, "rt") as f:
-            cube_back = tmi.stl.loads(f.read(), mode="ascii")
+            cube_back = tmi.stl.loads(f.read(), mode="t")
 
         diff = tmi.stl.diff(cube, cube_back)
 
@@ -52,30 +52,28 @@ def test_minimal():
 
 
 def _test_stl(original_path, original_mode):
-    if original_mode == "binary":
-        ori_mode = "binary"
-        ori_fmode = "b"
-        alt_mode = "ascii"
-        alt_fmode = "t"
-    elif original_mode == "ascii":
-        ori_mode = "ascii"
-        ori_fmode = "t"
-        alt_mode = "binary"
-        alt_fmode = "b"
+    if original_mode == "b":
+        ori_mode = "b"
+        alt_mode = "t"
+    elif original_mode == "t":
+        ori_mode = "t"
+        alt_mode = "b"
     else:
-        raise KeyError("original_mode must be either 'binary' or  'ascii'.")
+        raise KeyError(
+            "original_mode must be either 'b' (binary) or 't' (text)."
+        )
 
-    with open(original_path, "r" + ori_fmode) as f:
+    with open(original_path, "r" + ori_mode) as f:
         s_ori = tmi.stl.loads(f.read(), mode=ori_mode)
 
     with tempfile.TemporaryDirectory(prefix="triangle_mesh_io_") as tmpdir:
         tmp_ori_path = os.path.join(tmpdir, "pot.original-format.stl")
         tmp_alt_path = os.path.join(tmpdir, "pot.alternative-format.stl")
 
-        with open(tmp_ori_path, "w" + ori_fmode) as f:
+        with open(tmp_ori_path, "w" + ori_mode) as f:
             f.write(tmi.stl.dumps(s_ori, mode=ori_mode))
 
-        with open(tmp_ori_path, "r" + ori_fmode) as f:
+        with open(tmp_ori_path, "r" + ori_mode) as f:
             s_ori_back = tmi.stl.loads(f.read(), mode=ori_mode)
 
         diff = tmi.stl.diff(a=s_ori, b=s_ori_back, eps=1e-6)
@@ -83,10 +81,10 @@ def _test_stl(original_path, original_mode):
             print(diff)
         assert len(diff) == 0
 
-        with open(tmp_alt_path, "w" + alt_fmode) as f:
+        with open(tmp_alt_path, "w" + alt_mode) as f:
             f.write(tmi.stl.dumps(s_ori_back, mode=alt_mode))
 
-        with open(tmp_alt_path, "r" + alt_fmode) as f:
+        with open(tmp_alt_path, "r" + alt_mode) as f:
             s_alt_back = tmi.stl.loads(f.read(), mode=alt_mode)
 
         diff = tmi.stl.diff(a=s_ori, b=s_alt_back, eps=1e-6)
@@ -96,17 +94,17 @@ def _test_stl(original_path, original_mode):
 
 
 def test_stl():
-    _test_stl(original_path=STL_ASCII_PATH, original_mode="ascii")
-    _test_stl(original_path=STL_BINARY_PATH, original_mode="binary")
+    _test_stl(original_path=STL_ASCII_PATH, original_mode="t")
+    _test_stl(original_path=STL_BINARY_PATH, original_mode="b")
 
 
 def test_convert_gridfinity_stl_to_obj():
     with open(STL_ASCII_PATH, "rt") as f:
-        gridfinity_stl = tmi.stl.loads(f.read(), mode="ascii")
+        gridfinity_stl = tmi.stl.loads(f.read(), mode="t")
     gridfinity_obj = tmi.convert.stl_to_obj(gridfinity_stl)
 
 
 def test_convert_teapot_stl_to_obj():
     with open(STL_BINARY_PATH, "rb") as f:
-        teapot_stl = tmi.stl.loads(f.read(), mode="binary")
+        teapot_stl = tmi.stl.loads(f.read(), mode="b")
     teapot_obj = tmi.convert.stl_to_obj(teapot_stl)

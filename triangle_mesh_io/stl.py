@@ -120,21 +120,21 @@ def _num_bytes_per_triangle():
 
 
 def loads(s, mode="ascii"):
-    if mode == "ascii":
+    if mode in ["t", "ascii"]:
         return _loads_ascii(s=s)
-    elif mode == "binary":
+    elif mode in ["b", "binary"]:
         return _loads_binary(s=s)
     else:
         raise KeyError("mode must be either 'ascii' or 'binary'.")
 
 
 def dumps(stl, mode="ascii"):
-    if mode == "ascii":
+    if mode in ["t", "ascii"]:
         return _dumps_ascii(stl=stl)
-    elif mode == "binary":
+    elif mode in ["b", "binary"]:
         return _dumps_binary(stl=stl)
     else:
-        raise KeyError("mode must be either 'ascii' or 'binary'.")
+        raise KeyError("mode must be either 't' / 'ascii' or 'b' / 'binary'.")
 
 
 def _gather_lines_of_facet(ss):
