@@ -29,7 +29,10 @@ setuptools.setup(
             os.path.join("tests", "resources", "*"),
         ],
     },
-    install_requires=[],
+    install_requires=[
+        "numpy",
+        "sklearn",
+    ],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
